@@ -78,3 +78,9 @@ Desktop.ini
 *.sln.docstates # Visual Studio
 .vscode/
 .vscode/
+sdkconfig
+sdkconfig.esp32dev
+sdkconfig.old
+.clangd
+
+*.pem
