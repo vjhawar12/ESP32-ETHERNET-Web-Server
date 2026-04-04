@@ -5,8 +5,7 @@ on:
   push:
     branches:
       - main
-      - develop
-      - '**'
+      - replacement
 
 jobs:
   build:
