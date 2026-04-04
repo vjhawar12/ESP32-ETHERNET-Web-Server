@@ -23,15 +23,14 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          TAG_NAME="${GITHUB_REF_NAME}"
-          VERSION="${TAG_NAME#v}"
+          VERSION="${GITHUB_REF_NAME}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Using version: $VERSION"
 
       - name: Build firmware with ESP-IDF
         uses: espressif/esp-idf-ci-action@v1
         with:
-          esp_idf_version: v5.5.0
+          esp_idf_version: v5.5.3
           target: esp32s3
           path: '.'
           command: |
