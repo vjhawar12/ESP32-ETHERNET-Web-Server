@@ -1,7 +1,11 @@
+#include "stdbool.h"
 #include "s3.h"
 // #include "eth01.c"
 
+volatile bool check_for_ota = 0;
 
 void app_main() {   
-	s3_eth_run();
+	// change s3_ota_update to a task scheduled by FreeRTOS later
+	// sensor readings and other tasks should also be scheduled
+	s3_ota_update();
 }  
