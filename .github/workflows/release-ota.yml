@@ -15,6 +15,7 @@ jobs:
     env:
       BUILD_DIR: build
       PROJECT_NAME: Project1
+      RELEASE_DIR: release
 
     steps:
       - name: Checkout
@@ -40,6 +41,14 @@ jobs:
         run: |
           cp "${BUILD_DIR}/${PROJECT_NAME}.bin" "${BUILD_DIR}/firmware-${{ steps.version.outputs.version }}.bin"
 
+      - name: Prepare release folder
+        run: mkdir -p "${RELEASE_DIR}"
+
+      - name: Copy firmware into release folder
+        run: |
+          cp "${BUILD_DIR}/${PROJECT_NAME}.bin" \
+             "${RELEASE_DIR}/firmware-${{ steps.version.outputs.version }}.bin"
+
       - name: Generate manifest.json
         run: |
           cat > "${BUILD_DIR}/manifest.json" <<EOF
@@ -54,5 +63,5 @@ jobs:
         with:
           name: ota-release-${{ steps.version.outputs.version }}
           path: |
-            build/firmware-${{ steps.version.outputs.version }}.bin
-            build/manifest.json
+            release/firmware-${{ steps.version.outputs.version }}.bin
+            release/manifest.json
