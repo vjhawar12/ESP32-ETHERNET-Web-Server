@@ -28,6 +28,11 @@
 #include "esp_app_desc.h"
 #include "driver/gptimer.h"
 #include "stdbool.h"
+#include "lwip/err.h"
+#include "lwip/sockets.h"
+#include "lwip/sys.h"
+#include <lwip/netdb.h>
+
 
 #if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
 #include "esp_crt_bundle.h"
@@ -37,6 +42,7 @@
 // Exceeding around 1024 causes stack overflow
 #define MAX_HTTP_OUTPUT_BUFFER 1024
 #define ETH_CONNECTED_BIT BIT0
+#define OTA_REQUESTED_BIT BIT1
 
 // NOTE: These constants are specific to the ESP32-S3-ETH boards. They use the following schematic: 
 // https://files.waveshare.com/wiki/ESP32-S3-ETH/ESP32-S3-ETH-Schematic.pdf
@@ -47,7 +53,10 @@
 #define S3_SCLK_GPIO 13
 #define S3_CS_GPIO 14
 
-#define UPDATE_CHECK_PERIOD_US 10000000
+#define ULL unsigned long long
+
+// 36000000000ULL = 10 hours
+#define UPDATE_CHECK_PERIOD_US 36000000000ULL
 
 // not needed, so assigning it a default value
 #define S3_ETH_PHY_ADDR 1
@@ -75,10 +84,11 @@
 // address of the router
 #define GATEWAY "192.168.3.1"
 
+// port for udp server
+#define PORT 5000
+
 static char response_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
 extern const char server_cert_pem_start[] asm("_binary_cert_pem_start");
-extern bool check_for_ota; 
-
 
 esp_eth_mac_t *mac = NULL;
 esp_eth_phy_t *phy = NULL;
@@ -387,13 +397,15 @@ void parse_manifest() {
 	cJSON_Delete(json);
 }
 
-void check_for_updates() {
-	http_get_request();
-	parse_manifest();
-}
-
 static bool IRAM_ATTR timer_callback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* usr_ctx) {
-	check_for_ota = 1;
+	BaseType_t xHigherPriorityTaskWoken, xResult;
+    xHigherPriorityTaskWoken = pdFALSE; // ensures the scheduler does not preempt this ISR
+	xEventGroupSetBitsFromISR(group, OTA_REQUESTED_BIT, &xHigherPriorityTaskWoken);
+
+	if (xHigherPriorityTaskWoken) {
+        portYIELD_FROM_ISR(); // yields only after the ISR is finished
+    }
+
 	return false;
 }
 
@@ -424,12 +436,74 @@ void timer_setup() {
 }
 
 
-void s3_ota_update() {   
-	ESP_LOGI(TAG, "Running version 1.0.1!");
-	
-	group = xEventGroupCreate();		
+void udp_server_create(void* pvParams) {
+	char rx_buffer[128];
+    char addr_str[128];
+	int addr_family = (int)pvParams; // ipv4
+	struct sockaddr_in dest_addr_ip4;
+	int ip_protocol = 0;
 
-	ESP_LOGI(S3_TAG, "s3_ota_update started");
+	while (1) {
+		dest_addr_ip4.sin_addr.s_addr = htonl(INADDR_ANY);
+		dest_addr_ip4.sin_family = AF_INET;
+		dest_addr_ip4.sin_port = htons(PORT);
+		ip_protocol = IPPROTO_IP;
+
+		int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+		if (sock < 0) {
+			ESP_LOGI(S3_TAG, "Failed to create socket");  
+			continue;
+		}
+
+		ESP_LOGI(S3_TAG, "Created socket"); 
+
+		int err = bind(sock,  (struct sockaddr *)&dest_addr_ip4, sizeof(dest_addr_ip4));
+        if (err < 0) {
+            ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
+			close(sock);
+			continue;
+        }
+        ESP_LOGI(TAG, "Socket bound, port %d", PORT);
+
+		struct sockaddr_storage source_addr; 
+		socklen_t socklen = sizeof(source_addr);
+
+		while (1) {
+            ESP_LOGI(TAG, "Waiting for data");
+			int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
+			
+			if (len < 0) {
+                ESP_LOGE(TAG, "recvfrom failed: errno %d", errno);
+                break;
+            } else {
+				rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string...
+
+				if (source_addr.ss_family == PF_INET) {
+					inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
+				}
+
+                ESP_LOGI(TAG, "Received %d bytes from %s:", len, addr_str);
+                ESP_LOGI(TAG, "%s", rx_buffer);
+			}
+			
+			// returns 0 = match
+			if (!strcmp(rx_buffer, "OTA_REQUESTED")) {
+				xEventGroupSetBits(group, OTA_REQUESTED_BIT); 
+			}
+
+		}
+
+		shutdown(sock, 0); 
+		close(sock); 
+	}
+}
+
+
+void s3_main() {   
+	group = xEventGroupCreate();
+
+	ESP_LOGI(S3_TAG, "s3_main started");
 
 	const esp_partition_t *running = esp_ota_get_running_partition();
 
@@ -460,12 +534,18 @@ void s3_ota_update() {
 	); 
 
 	timer_setup();
+	xTaskCreate(udp_server_create, "UDP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
 
 	while (1) {
-		if (check_for_ota) {
-			check_for_ota = 0;
-			check_for_updates();
-		}
-		vTaskDelay(pdMS_TO_TICKS(100)); 
+		xEventGroupWaitBits(
+			group,
+			OTA_REQUESTED_BIT, 
+			pdTRUE,
+			pdTRUE,
+			portMAX_DELAY
+		);
+
+		http_get_request();
+		parse_manifest();
 	}
 }  	   
