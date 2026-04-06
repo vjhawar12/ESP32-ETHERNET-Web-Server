@@ -1,5 +1,4 @@
 #include "s3.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -43,7 +42,6 @@
 #define MAX_HTTP_OUTPUT_BUFFER 1024
 #define ETH_CONNECTED_BIT BIT0
 #define OTA_REQUESTED_BIT BIT1
-
 // NOTE: These constants are specific to the ESP32-S3-ETH boards. They use the following schematic: 
 // https://files.waveshare.com/wiki/ESP32-S3-ETH/ESP32-S3-ETH-Schematic.pdf
 #define S3_RESET_GPIO 9
@@ -52,20 +50,14 @@
 #define S3_MISO_GPIO 12
 #define S3_SCLK_GPIO 13
 #define S3_CS_GPIO 14
-
-#define ULL unsigned long long
-
 // 36000000000ULL = 10 hours
 #define UPDATE_CHECK_PERIOD_US 36000000000ULL
-
 // not needed, so assigning it a default value
 #define S3_ETH_PHY_ADDR 1
 // conservative speed
 #define S3_SPI_CLK_MHZ 20
-
 #define S3_TAG "ESP_S3_ETH Client Instance"
 #define TAG "HTTP_CLIENT_GET"
-
 // ip adddresses for secondaries
 #define IP_ADDR_0 "192.168.3.200"
 #define IP_ADDR_1 "192.168.3.201"
@@ -73,15 +65,15 @@
 #define IP_ADDR_3 "192.168.3.203"
 #define IP_ADDR_4 "192.168.3.204"
 #define IP_ADDR_5 "192.168.3.205"
+#define IP_ADDR_6 "192.168.3.206"
 
 // this is not a real node, its a test one
-#define TEST_IP_ADDR_6 "192.168.3.206"
+#define DEFAULT_IP_ADDR IP_ADDR_6
 
 #define MANIFEST "https://192.168.3.125:4443/manifest.json"
 
 
 #define SUBNET "255.255.255.0"
-// address of the router
 #define GATEWAY "192.168.3.1"
 
 // port for udp server
@@ -89,7 +81,7 @@
 
 static char response_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
 extern const char server_cert_pem_start[] asm("_binary_cert_pem_start");
-
+char ip_addr[16] = DEFAULT_IP_ADDR;
 esp_eth_mac_t *mac = NULL;
 esp_eth_phy_t *phy = NULL;
 esp_netif_t *eth_netif = NULL;
@@ -499,12 +491,38 @@ void udp_server_create(void* pvParams) {
 	}
 }
 
+// stores the ip address (found from nvs) of the node in ip_addr. If not found in NVS, it stores DEFAULT_IP_ADDR
+void load_ip() {
+	esp_err_t err = nvs_flash_init();
+	nvs_handle_t nvs_handle; 
 
-void s3_main() {   
-	group = xEventGroupCreate();
+	if (err != ESP_OK) {
+		ESP_LOGE(S3_TAG, "Could not initialize NVS partition");
+	} else {
+		ESP_LOGI(S3_TAG, "Opening NVS partition ...");
+		err = nvs_open("netcfg", NVS_READWRITE, &nvs_handle); 
+		
+		if (err != ESP_OK) {
+			ESP_LOGE(S3_TAG, "Could not open NVS partition");
+		} else {
+			size_t ip_addr_len = sizeof(ip_addr); 
+			err = nvs_get_str(nvs_handle, "ip_addr", ip_addr, &ip_addr_len); 
 
-	ESP_LOGI(S3_TAG, "s3_main started");
+			if (err == ESP_OK) {
+				ESP_LOGI(S3_TAG, "Retrieved ip address %s", ip_addr); 
+				nvs_close(nvs_handle);
+			} else {
+				ESP_LOGI(S3_TAG, "IP Address not found, writing %s", ip_addr);
+				err = nvs_set_str(nvs_handle, "ip_addr", ip_addr);
+				ESP_ERROR_CHECK((nvs_handle));
+				ESP_LOGI(S3_TAG, "Successfully wrote %s to ip_addr", ip_addr); 
+				nvs_close(nvs_handle);
+			}
+		}
+	}
+}
 
+void validate_ota() {
 	const esp_partition_t *running = esp_ota_get_running_partition();
 
 	if (running != NULL) {
@@ -519,12 +537,23 @@ void s3_main() {
 			ESP_LOGI(S3_TAG, "Running from factory partition, not marking OTA valid");
 		}
 	}	
+}
 
+void network_start() {
 	ESP_ERROR_CHECK(network_init());
 	ESP_ERROR_CHECK(mac_phy_init());
 	ESP_ERROR_CHECK(driver_init());
-	ESP_ERROR_CHECK(attach_driver_to_network(TEST_IP_ADDR_6));
+	ESP_ERROR_CHECK(attach_driver_to_network(ip_addr));
+}
 
+void s3_main() {   
+	ESP_LOGI(S3_TAG, "s3_main started");
+	group = xEventGroupCreate();
+
+	load_ip(); 
+	validate_ota(); 
+	network_start();
+	
 	xEventGroupWaitBits(
 		group,
 		ETH_CONNECTED_BIT,
