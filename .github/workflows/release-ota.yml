@@ -51,6 +51,7 @@ jobs:
           {
             "version": "${{ steps.version.outputs.version }}",
             "firmware_url": "https://192.168.3.125:4443/firmware-${{ steps.version.outputs.version }}.bin"
+            "target": "esp32s3"
           }
           EOF
 
