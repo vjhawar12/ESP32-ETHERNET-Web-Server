@@ -62,4 +62,4 @@ jobs:
           name: ota-release-${{ steps.version.outputs.version }}
           path: |
             release/firmware-${{ steps.version.outputs.version }}.bin
-            release/manifest.json
+            release/s3_manifest.json
