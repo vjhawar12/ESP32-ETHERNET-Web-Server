@@ -84,7 +84,7 @@ esp_eth_handle_t eth_handle = NULL;
 spi_device_handle_t spi_handle = NULL;
 static EventGroupHandle_t group; 
 
-static esp_err_t network_init() {
+esp_err_t network_init(void) {
 	ESP_RETURN_ON_ERROR(esp_netif_init(), S3_TAG, "esp_netif failed"); // connects TCP/IP stack to the hardware
 	ESP_RETURN_ON_ERROR(esp_event_loop_create_default(), S3_TAG, "esp_event_loop_create_default failed"); // event loop that reports link status and network changes, not packet transmission	
 	esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH(); // configuration structure for Ethernet
@@ -101,7 +101,7 @@ static esp_err_t network_init() {
 
 // ESP32 S3 ETH uses a SPI ethernet controller not a MAC + external
 // Initializing mac and phy, the ethernet driver components
-static esp_err_t mac_phy_init() {
+esp_err_t mac_phy_init(void) {
 	eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();      // apply default common MAC configuration
 	eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();      // apply default PHY configuration
 	phy_config.phy_addr = S3_ETH_PHY_ADDR;           // alter the PHY address according to your board design
@@ -143,13 +143,13 @@ static esp_err_t mac_phy_init() {
 
 
 // driver initialization with mac and phy
-static esp_err_t driver_init() {
+esp_err_t driver_init(void) {
 	esp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);
 	ESP_RETURN_ON_ERROR(esp_eth_driver_install(&config, &eth_handle), S3_TAG, "ETH_DEFAULT_CONFIG failed");
 	return ESP_OK;
 }
 
-static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
+void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
     const esp_netif_ip_info_t *ip_info = &event->ip_info;
 
@@ -162,8 +162,7 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
 	xEventGroupSetBits(group, ETH_CONNECTED_BIT);
 }
 
-static void eth_event_handler(void *arg, esp_event_base_t event_base,
-                              int32_t event_id, void *event_data)
+void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     switch (event_id) {
         case ETHERNET_EVENT_START:
@@ -183,7 +182,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-static esp_err_t assign_static_ip(const char* ip_addr) {
+esp_err_t assign_static_ip(const char* ip_addr) {
 	// switching from dhcp to static ip
 	ESP_RETURN_ON_ERROR(esp_netif_dhcpc_stop(eth_netif), S3_TAG, "esp_netif_dhcpc_stop failed");
 
@@ -206,7 +205,7 @@ static esp_err_t assign_static_ip(const char* ip_addr) {
 
 
 // connecting the drivers and the network
-static esp_err_t attach_driver_to_network(const char* ip_addr) {
+esp_err_t attach_driver_to_network(const char* ip_addr) {
 	// starting handler to catch errors
 	ESP_RETURN_ON_ERROR(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL), S3_TAG, "eth_event_handler failed");
 	ESP_RETURN_ON_ERROR(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL), S3_TAG, "got_ip_event_handler failed");
@@ -278,7 +277,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 }
 
 
-void http_get_request() {
+void http_get_request(void) {
     esp_http_client_config_t config = {
         .url = MANIFEST,	
         .method = HTTP_METHOD_GET,
@@ -319,7 +318,7 @@ int less_than(const char *current, const char *latest)
     return c_patch < l_patch;
 }
 
-void parse_manifest() {
+void parse_manifest(void) {
 	ESP_LOGI(TAG, "Raw manifest response: %s", response_buffer);
 	cJSON *json = cJSON_Parse(response_buffer);
 
@@ -396,7 +395,7 @@ static bool IRAM_ATTR timer_callback(gptimer_handle_t timer, const gptimer_alarm
 }
 
 
-void timer_setup() {
+void timer_setup(void) {
 	gptimer_handle_t timer; 
 	gptimer_config_t timer_config = {
 		.clk_src = GPTIMER_CLK_SRC_DEFAULT,
@@ -486,7 +485,7 @@ void udp_server_create(void* pvParams) {
 }
 
 // stores the ip address (found from nvs) of the node in ip_addr. If not found in NVS, it stores DEFAULT_IP_ADDR
-void load_ip() {
+void load_ip(void) {
 	esp_err_t err = nvs_flash_init();
 	nvs_handle_t nvs_handle; 
 
@@ -516,7 +515,7 @@ void load_ip() {
 	}
 }
 
-void validate_ota() {
+void validate_ota(void) {
 	const esp_partition_t *running = esp_ota_get_running_partition();
 
 	if (running != NULL) {
@@ -533,14 +532,14 @@ void validate_ota() {
 	}	
 }
 
-void network_start() {
+void network_start(void) {
 	ESP_ERROR_CHECK(network_init());
 	ESP_ERROR_CHECK(mac_phy_init());
 	ESP_ERROR_CHECK(driver_init());
 	ESP_ERROR_CHECK(attach_driver_to_network(ip_addr));
 }
 
-void s3_main() {   
+void s3_main(void) {   
 	ESP_LOGI(S3_TAG, "s3_main started");
 	group = xEventGroupCreate();
 
