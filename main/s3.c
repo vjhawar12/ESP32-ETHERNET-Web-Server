@@ -88,7 +88,6 @@ esp_netif_t *eth_netif = NULL;
 esp_eth_handle_t eth_handle = NULL;
 spi_device_handle_t spi_handle = NULL;
 static EventGroupHandle_t log_group, main_group; 
-esp_app_desc_t *app_desc = NULL;
 int manifest_overflow = 0;
 
 esp_err_t network_init(void) {
@@ -351,10 +350,10 @@ void parse_manifest(void) {
 			cJSON_Delete(json);
 			return;
 		}
-		ESP_LOGI(TAG, "Current app version: %s", app_desc->version);
+		ESP_LOGI(TAG, "Current app version: %s", esp_app_get_description()->version);
 		ESP_LOGI(TAG, "Manifest version: %s", server_version->valuestring);
 		// comparing current version (app_desc->version) with latest version (version->valuestring)
-		if (less_than(app_desc->version, server_version->valuestring)) {
+		if (less_than(esp_app_get_description()->version, server_version->valuestring)) {
 			// trigger OTA
 				 esp_http_client_config_t http_config = {
 					.url = firmware_url->valuestring,
@@ -372,7 +371,7 @@ void parse_manifest(void) {
 					esp_restart();
 				} else {
 					ESP_LOGI(TAG, "Raw manifest response: %s", response_buffer);
-					ESP_LOGI(TAG, "Current app version: %s", app_desc->version);
+					ESP_LOGI(TAG, "Current app version: %s", esp_app_get_description()->version);
 					ESP_LOGI(TAG, "Manifest version: %s", server_version->valuestring);
 					ESP_LOGI(TAG, "OTA URL: %s", firmware_url->valuestring);
 					ESP_LOGE(TAG, "OTA Failed! %s (0x%x)", esp_err_to_name(err), err);
@@ -555,7 +554,7 @@ void handle_sha(char* tx_buffer, int sock) {
 }
 
 void handle_version(char* tx_buffer, int sock) {
-	tx(app_desc->version, sock);
+	tx(esp_app_get_description()->version, sock);
 	tx("\n", sock);
 }
 
@@ -737,7 +736,6 @@ void s3_main(void) {
 		portMAX_DELAY
 	); 
 	timer_setup();
-	app_desc = esp_app_get_description();
 	xTaskCreate(heartbeat, "Heartbeat Monitor Task", 1024, NULL, 3, NULL); 
 	xTaskCreate(udp_server_create, "UDP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
 	xTaskCreate(tcp_server_create, "TCP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
