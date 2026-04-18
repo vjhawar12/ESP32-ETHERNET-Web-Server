@@ -656,7 +656,7 @@ void handle_stream_off(char* tx_buffer, int sock) {
 }
 
 void handle_ota_check(char* tx_buffer, int sock) {
-	snprintf(tx_buffer, sizeof(tx_buffer), "Latest Version: %s\nRunning Version: %s\nLast time ota triggered: %s\n", server_version_str, esp_app_get_description()->version, "NULL");
+	snprintf(tx_buffer, 128, "Latest Version: %s\nRunning Version: %s\nLast time ota triggered: %s\n", server_version_str, esp_app_get_description()->version, "NULL");
 	tx(tx_buffer, sock);
 }
 
