@@ -3,8 +3,10 @@
 #include "esp_log.h"
 #include "sensors.h"
 #include "app_config.h"
+#include "freertos/projdefs.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
+#include "portmacro.h"
 #include "sensor_context.h"
 #include "rtos_objects.h"
 #include "stdbool.h"
@@ -85,9 +87,21 @@ bool read_mq135(adc_oneshot_unit_handle_t adc_oneshot_handle, adc_cali_handle_t 
 }
 
 
-void motion_detected_handler(void* pvParams) {
-	// log the date and time here too
-	ESP_LOGW(TAG, "Motion detected!");
+void motion_detected_isr(void* pvParams) {
+	BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
+	TaskHandle_t *xTaskToNotify = (TaskHandle_t*)pvParams;
+	vTaskNotifyGiveFromISR(*xTaskToNotify, &pxHigherPriorityTaskWoken); 
+	portYIELD_FROM_ISR(pxHigherPriorityTaskWoken);
+}
+
+void motion_detected_handler(void *pvParams) {
+	while(1) {
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY); 
+		motion_state_t motion_state = read_hcsr505(pcf8575_handle); 
+		if (motion_state == MOTION_DETECTED) {
+			ESP_LOGW(S3_TAG, "Motion Detected!"); 
+		}
+	}
 }
 
 
@@ -113,7 +127,7 @@ void measure_sensor_values(void* pv_params) {
 		// MQ135
 		mq135 = read_mq135(adc_oneshot_handle, adc_cali_handle, &air_quality);	
 		 // HCSR505
-		motion_state = read_hcsr505(hcsr505_handle);
+		motion_state = read_hcsr505(pcf8575_handle);
 		if (mutex && xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE) {
 			sensor_data->temperature = aht20? aht20_sample.temperature : -1.0f;
 			sensor_data->humidity = aht20? aht20_sample.humidity : -1.0f;

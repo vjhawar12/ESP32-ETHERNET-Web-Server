@@ -37,6 +37,6 @@ extern stream_data* sensor_data;
 extern stream_payload* payload;
 extern adc_oneshot_unit_handle_t adc_oneshot_handle; 
 extern adc_cali_handle_t adc_cali_handle; 
-extern i2c_master_dev_handle_t aht20_handle, hcsr505_handle;
+extern i2c_master_dev_handle_t aht20_handle, pcf8575_handle;
 
 #endif

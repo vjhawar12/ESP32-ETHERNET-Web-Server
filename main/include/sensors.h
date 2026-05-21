@@ -7,5 +7,6 @@
 // expanded.
 void measure_sensor_values(void* pv_params);
 void motion_detected_handler(void* pvParams);
+void motion_detected_isr(void* pvParams);
 
 #endif

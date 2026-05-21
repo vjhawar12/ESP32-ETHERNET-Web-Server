@@ -1,3 +1,4 @@
+#include "hal/gpio_types.h"
 #include "s3.h"
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
@@ -18,16 +19,16 @@
 
 void gpio_init(void) {
 	gpio_config_t io_intr_conf = {
-		.pin_bit_mask = (1ULL << HCSR505_INTR_PIN),
+		.pin_bit_mask = (1ULL << PCF8575_INTR_PIN),
 		.mode = GPIO_MODE_INPUT,
-		.pull_up_en = GPIO_PULLUP_DISABLE,
+		.pull_up_en = GPIO_PULLUP_ENABLE, // INT is open-drain ==> pullup needed
 		.pull_down_en = GPIO_PULLDOWN_DISABLE,
-		.intr_type = GPIO_INTR_HIGH_LEVEL,
+		.intr_type = GPIO_INTR_NEGEDGE, // open-drain ==> active low ==> sample negative edge for motion detection
 	}; 
 	gpio_config(&io_intr_conf);
 	// mac_phy_init() calls gpio_install_isr_service(0) which is needed for gpio_isr_handler_add
 	// so ethernet_init must happen before gpio_init
-	gpio_isr_handler_add(HCSR505_INTR_PIN, motion_detected_handler, NULL);
+	gpio_isr_handler_add(PCF8575_INTR_PIN, motion_detected_isr, NULL);
 }; 
 
 
@@ -51,16 +52,16 @@ void i2c_init(void) {
 		.device_address = AHT20_ADDR,
 		.scl_speed_hz = SCL_FREQUENCY_HZ,	
 	};
-	// slave 1: pcf8575
+	// slave 2: pcf8575 - GPIO expander
 	i2c_device_config_t pcf8575_cfg = {
 		.dev_addr_length = I2C_ADDR_BIT_LEN_7,
-		.device_address = PCF8585_ADDR,
+		.device_address = PCF8575_ADDR,
 		.scl_speed_hz = SCL_FREQUENCY_HZ,	
 	};
 	ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &aht20_cfg, &aht20_handle)); 
 	ESP_ERROR_CHECK(i2c_master_probe(i2c_bus_handle, AHT20_ADDR, -1));
-	ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &pcf8575_cfg, &hcsr505_handle)); 
-	ESP_ERROR_CHECK(i2c_master_probe(i2c_bus_handle, PCF8585_ADDR, -1));
+	ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &pcf8575_cfg, &pcf8575_handle)); 
+	ESP_ERROR_CHECK(i2c_master_probe(i2c_bus_handle, PCF8575_ADDR, -1));
 	uint8_t init = 0x71;
 	esp_err_t err; 
 	vTaskDelay(pdMS_TO_TICKS(40));
