@@ -246,7 +246,6 @@ void tcp_server_create(void* pv_params) {
 	close(listen_socket);
 }
 
-
 // Wait for either the periodic stream event or a manual stream-enable flag,
 // then send the latest formatted payload to the backend over UDP.
 void udp_stream(void* pvParams) {
@@ -260,8 +259,8 @@ void udp_stream(void* pvParams) {
 			portMAX_DELAY
 		);
 		if (mutex && xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE) {
-			snprintf(payload->msg, sizeof(payload->msg), "{\n\t\"chip\"\t:\t\"%s\",\n\t\"firmvers\"\t:\t\"%s\",\n\t\"ip\"\t:\t\"%s\",\n\t\"temperature\"\t:\t\"%s\",\n\t\"humidity\"\t:\t\"%s\",\n\t\"air_quality\"\t:\t\"%s\",\n\t\"motion_detected\"\t:\t%s\n}", 
-				sensor_data->chip, sensor_data->firmvers, sensor_data->ip, sensor_data->temperature, sensor_data->humidity, sensor_data->air_quality, sensor_data->motion_detected? "true" : "false" 
+			snprintf(payload->msg, sizeof(payload->msg), "{\n\t\"chip\"\t:\t\"%s\",\n\t\"firmvers\"\t:\t\"%s\",\n\t\"ip\"\t:\t\"%s\",\n\t\"temperature\"\t:\t%.3f,\n\t\"humidity\"\t:\t%.3f,\n\t\"air_quality\"\t:\t%.3f,\n\t\"motion_state\"\t:\t%d\n}", 
+				sensor_data->chip, sensor_data->firmvers, sensor_data->ip, sensor_data->temperature, sensor_data->humidity, sensor_data->air_quality, sensor_data->motion_state
 			);
 			int err = sendto(payload->sock, payload->msg, strlen(payload->msg), 0, (struct sockaddr *)&payload->dest_addr, sizeof(payload->dest_addr));
 			if (err < 0) {
