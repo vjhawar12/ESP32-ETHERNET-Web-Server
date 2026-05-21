@@ -85,7 +85,7 @@ bool read_mq135(adc_oneshot_unit_handle_t adc_oneshot_handle, adc_cali_handle_t 
 }
 
 
-void motion_state_handler(void* pvParams) {
+void motion_detected_handler(void* pvParams) {
 	// log the date and time here too
 	ESP_LOGW(TAG, "Motion detected!");
 }
