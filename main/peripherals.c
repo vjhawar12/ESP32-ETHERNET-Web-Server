@@ -16,6 +16,7 @@
 #include "sensors.h"
 #include "peripherals.h"
 #include "sensor_context.h"
+#include "rtos_objects.h"
 
 void gpio_init(void) {
 	gpio_config_t io_intr_conf = {
@@ -28,7 +29,7 @@ void gpio_init(void) {
 	gpio_config(&io_intr_conf);
 	// mac_phy_init() calls gpio_install_isr_service(0) which is needed for gpio_isr_handler_add
 	// so ethernet_init must happen before gpio_init
-	gpio_isr_handler_add(PCF8575_INTR_PIN, motion_detected_isr, NULL);
+	gpio_isr_handler_add(PCF8575_INTR_PIN, motion_detected_isr, &motion_detected_handler_task);
 }; 
 
 

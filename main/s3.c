@@ -33,7 +33,6 @@ void s3_main(void) {
 	sensor_data = (stream_data*)calloc(1, sizeof(stream_data));
 	payload = (stream_payload*)calloc(1, sizeof(stream_payload)); 
 	payload->_stream_data = sensor_data;
-	TaskHandle_t motion_detected_handler_task;
 	nvs_init();
 	validate_ota(); 
 	network_start();
@@ -46,7 +45,6 @@ void s3_main(void) {
 	); 
 	i2c_init();
 	adc_init();
-	gpio_init();
 	if (http_get_request() == ESP_OK) {
 		parse_manifest(false);
 	}
@@ -58,6 +56,7 @@ void s3_main(void) {
 	xTaskCreate(udp_stream, "UDP Stream", 4096, payload, 2, NULL);
 	xTaskCreate(tcp_server_create, "TCP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
 	xTaskCreate(motion_detected_handler, "Motion Detected Handler", 4096, NULL, 5, &motion_detected_handler_task); 	
+	gpio_init();
 	while (1) {
 		xEventGroupWaitBits(
 			main_group,

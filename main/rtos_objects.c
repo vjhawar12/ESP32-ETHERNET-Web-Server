@@ -6,3 +6,4 @@ EventGroupHandle_t log_group;
 EventGroupHandle_t main_group;
 EventGroupHandle_t collect_group; 
 SemaphoreHandle_t mutex; 
+TaskHandle_t motion_detected_handler_task;

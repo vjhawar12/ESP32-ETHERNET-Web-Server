@@ -9,5 +9,6 @@ extern EventGroupHandle_t log_group;
 extern EventGroupHandle_t main_group;
 extern EventGroupHandle_t collect_group; 
 extern SemaphoreHandle_t mutex; 
+extern TaskHandle_t motion_detected_handler_task;
 
 #endif
