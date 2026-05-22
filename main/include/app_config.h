@@ -61,7 +61,7 @@
 #define SCL_FREQUENCY_HZ 100000
 #define AHT20_DATA_LENGTH 128
 #define HCSR505_GPIO 2
-// connect INT to gpio pin 10
+// connect INT to gpio pin 27
 #define PCF8575_INTR_PIN GPIO_NUM_27
 
 #endif
