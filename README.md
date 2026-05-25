@@ -31,6 +31,12 @@ This firmware is part of an ongoing system for a **3000+ unit seniors village**,
 
 The project is still in progress, but it is already structured around real deployment constraints rather than a classroom-only prototype.
 
+## Hardware
+
+I created a custom PCB for this project. 
+
+![Power Module Schematic](/hardware/power_module_schm.png)
+
 ## Current feature set
 
 - Brings up the ESP32-S3 + W5500 Ethernet path over SPI
