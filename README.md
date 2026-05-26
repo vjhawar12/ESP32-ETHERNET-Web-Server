@@ -35,6 +35,8 @@ The project is still in progress as it is part of my contract work @ Taylor Syst
 
 I'm working on a custom PCB hardware design for this project so the firmware is tied to a real deployable embedded platform rather than only an off-the-shelf development board. The hardware screenshots in this folder document the schematic-level design work behind the node, including the power-entry and regulation circuitry needed to support a wired, always-on sensor deployment.
 
+The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + external LAN8720A PHY chip communicating over RMI for high-speed ethernet and to free up the SPI bus for other peripherals. The current firmware still uses the external SPI controller with the W5500. 
+
 <p align="center">
   <img src="hardware/power_module_schm.png" alt="Power module schematic" width="850">
 </p>
