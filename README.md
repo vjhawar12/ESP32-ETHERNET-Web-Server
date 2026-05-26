@@ -29,11 +29,11 @@ This firmware is part of an ongoing system for a **3000+ unit seniors village**,
 - OTA support for field updates
 - event-driven task structure suitable for unattended deployment
 
-The project is still in progress, but it is already structured around real deployment constraints rather than a classroom-only prototype.
+The project is still in progress as it is part of my contract work @ Taylor Systems. It is intended to be structured around real deployment constraints rather than a classroom-only prototype.
 
 ## Hardware
 
-I created a custom PCB hardware design for this project so the firmware is tied to a real deployable embedded platform rather than only an off-the-shelf development board. The hardware screenshots in this folder document the schematic-level design work behind the node, including the power-entry and regulation circuitry needed to support a wired, always-on sensor deployment.
+I'm working on a custom PCB hardware design for this project so the firmware is tied to a real deployable embedded platform rather than only an off-the-shelf development board. The hardware screenshots in this folder document the schematic-level design work behind the node, including the power-entry and regulation circuitry needed to support a wired, always-on sensor deployment.
 
 <p align="center">
   <img src="hardware/power_module_schm.png" alt="Power module schematic" width="850">
