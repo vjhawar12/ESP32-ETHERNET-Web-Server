@@ -75,16 +75,43 @@ I'm working on a custom PCB hardware design for this project so the firmware is 
 
 ```text
 .
+├── .devcontainer/             # containerized development environment configuration
+├── .github/
+│   └── workflows/             # GitHub Actions / release automation
 ├── components/
-│   └── w5500/                 # custom/packaged W5500 support
-├── main/
+│   └── w5500/                 # local W5500 Ethernet component
+│       ├── include/           # W5500 component headers
+│       └── src/               # W5500 MAC/PHY implementation
+├── hardware/                  # PCB schematic screenshots and hardware documentation images
+│   ├── power_module_schm.png
+│   ├── ethernet_module_schm.png
+│   └── esp32_module_schm.png
+├── main/                      # ESP-IDF application component
+│   ├── include/               # application module headers
+│   ├── CMakeLists.txt         # app component build configuration
+│   ├── idf_component.yml      # ESP-IDF component dependency manifest
+│   ├── cert.pem               # embedded certificate for HTTPS OTA
 │   ├── main.c                 # app_main entry point
-│   ├── s3.c                   # firmware implementation
-│   ├── s3.h                   # public interface
-│   └── cert.pem               # server certificate for HTTPS OTA
-├── partitions.csv             # OTA-capable partition layout
-├── sdkconfig                  # ESP-IDF configuration
-└── .github/workflows/         # CI / release automation
+│   ├── s3.c                   # top-level application orchestration
+│   ├── network.c              # Ethernet bring-up and IP configuration
+│   ├── comms.c                # TCP/UDP communication paths
+│   ├── ota.c                  # OTA update flow
+│   ├── http.c                 # HTTPS fetch helpers
+│   ├── manifest.c             # OTA manifest parsing/version handling
+│   ├── nvs.c                  # persistent node configuration storage
+│   ├── peripherals.c          # GPIO, I2C, ADC, timer, and interrupt setup
+│   ├── periodic.c             # timer-driven periodic events
+│   ├── rtos_objects.c         # FreeRTOS event groups and synchronization objects
+│   ├── sensor_context.c       # shared telemetry/sensor state
+│   └── sensors.c              # sensor reads and measurement conversion
+├── CMakeLists.txt             # top-level ESP-IDF project build file
+├── partitions.csv             # OTA-capable flash partition table
+├── sdkconfig                  # active ESP-IDF project configuration
+├── sdkconfig.esp32dev         # alternate ESP32 dev-board configuration
+├── dependencies.lock          # ESP-IDF dependency lockfile
+├── .clangd                    # clangd language-server configuration
+├── .gitignore
+└── README.md
 ```
 
 ## Firmware architecture
