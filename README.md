@@ -33,9 +33,13 @@ The project is still in progress, but it is already structured around real deplo
 
 ## Hardware
 
-I created a custom PCB for this project. 
+I created a custom PCB hardware design for this project so the firmware is tied to a real deployable embedded platform rather than only an off-the-shelf development board. The hardware screenshots in this folder document the schematic-level design work behind the node, including the power-entry and regulation circuitry needed to support a wired, always-on sensor deployment.
 
-![Power Module Schematic](/hardware/power_module_schm.png)
+<p align="center">
+  <img src="hardware/power_module_schm.png" alt="Power module schematic" width="850">
+</p>
+
+<p align="center"><em>Power module schematic showing the board-level power-entry and regulation stage used to derive the node supply rails from the external input.</em></p>
 
 ## Current feature set
 
