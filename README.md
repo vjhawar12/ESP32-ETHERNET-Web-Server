@@ -41,6 +41,21 @@ I created a custom PCB hardware design for this project so the firmware is tied 
 
 <p align="center"><em>Power module schematic showing the board-level power-entry and regulation stage used to derive the node supply rails from the external input.</em></p>
 
+
+<p align="center">
+  <img src="hardware/ethernet_module_schm.png" alt="Ethernet module schematic" width="850">
+</p>
+
+<p align="center"><em>Ethernet module schematic showing the LAN8720 external PHY chip and the external 50 MHz oscillator. </em></p>
+
+
+<p align="center">
+  <img src="hardware/esp32_module_schm.png" alt="ESP32 module schematic" width="850">
+</p>
+
+<p align="center"><em>Main MCU module schematic showing the ESP32-WROOM32-E MCU, the USB-C Receptacle, USB-to-UART converter, and CMOS circuitry to control boot, reset, and oscillator enable modes. </em></p>
+
+
 ## Current feature set
 
 - Brings up the ESP32-S3 + W5500 Ethernet path over SPI
