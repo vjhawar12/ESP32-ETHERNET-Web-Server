@@ -37,6 +37,8 @@ I'm working on a custom PCB hardware design for this project so the firmware is 
 
 The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + external LAN8720A PHY chip communicating over RMI for high-speed ethernet and to free up the SPI bus for other peripherals. The current firmware still uses the external SPI controller with the W5500. 
 
+The REV 1 KiCAD project can be found in hardware/kicad_project_zip/. 
+
 <p align="center">
   <img src="hardware/power_module.png" alt="Power module schematic" width="850">
 </p>
