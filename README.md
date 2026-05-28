@@ -38,7 +38,7 @@ I'm working on a custom PCB hardware design for this project so the firmware is 
 The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + external LAN8720A PHY chip communicating over RMI for high-speed ethernet and to free up the SPI bus for other peripherals. The current firmware still uses the external SPI controller with the W5500. 
 
 <p align="center">
-  <img src="hardware/power_module_schm.png" alt="Power module schematic" width="850">
+  <img src="hardware/power_module.png" alt="Power module schematic" width="850">
 </p>
 
 <p align="center"><em>Power module schematic showing the board-level power-entry and regulation stage used to derive the node supply rails from the external input.</em></p>
@@ -56,6 +56,13 @@ The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + ext
 </p>
 
 <p align="center"><em>Main MCU module schematic showing the ESP32-WROOM32-E MCU, the USB-C Receptacle, USB-to-UART converter, and CMOS circuitry to control boot, reset, and oscillator enable modes. </em></p>
+
+
+<p align="center">
+  <img src="hardware/sensors_module.png" alt="ESP32 module schematic" width="850">
+</p>
+
+<p align="center"><em>Sensors module schematic showing 16-pin GPIO expander over I2C, Air Quality sensor (MQ-135), temperature sensor (AHT20) and Motion Detector sensor (HC-SR505). </em></p>
 
 
 ## Current feature set
