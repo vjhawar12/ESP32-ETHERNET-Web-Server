@@ -37,7 +37,7 @@ I'm working on a custom PCB hardware design for this project so the firmware is 
 
 The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + external LAN8720A PHY chip communicating over RMI for high-speed ethernet and to free up the SPI bus for other peripherals. The current firmware still uses the external SPI controller with the W5500. 
 
-The REV 1 KiCAD project can be found in hardware/kicad_project_zip/. 
+The Rev 1 custom PCB is currently documented through schematic screenshots and a pre-layout schematic overview. Editable KiCad source files are kept private while the design is under active development.
 
 <p align="center">
   <img src="hardware/power_module.png" alt="Power module schematic" width="850">
@@ -66,6 +66,13 @@ The REV 1 KiCAD project can be found in hardware/kicad_project_zip/.
 
 <p align="center"><em>Sensors module schematic showing 16-pin GPIO expander over I2C, Air Quality sensor (MQ-135), temperature sensor (AHT20) and Motion Detector sensor (HC-SR505). </em></p>
 
+## Hardware design status
+
+Rev 1 of the custom PCB is currently in pre-layout schematic review. The design migrates from the current W5500 SPI Ethernet development hardware toward an ESP32-WROOM-32E design using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY. The board also includes onboard 12V-to-5V and 5V-to-3.3V regulation, USB-UART programming support, an I2C GPIO expander, and sensor interfaces for MQ135, AHT20, and HC-SR505 modules.
+
+The next hardware milestone is to route the PCB, run ERC/DRC and footprint checks, fabricate a single Rev 1 prototype, and document bring-up results before considering any larger production run.
+
+Editable KiCad source files are not included publicly while the design is under active development.
 
 ## Current feature set
 
