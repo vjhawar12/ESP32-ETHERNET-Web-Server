@@ -80,6 +80,10 @@ Rev 1 of the custom PCB is currently in **pre-layout schematic review**. The des
 
 The next hardware milestone is to route the PCB, run ERC/DRC and footprint checks, fabricate a single Rev 1 prototype, and document bring-up results before considering any larger production run.
 
+## BOM
+
+The preliminary bill-of-materials can be found under /hardware/bom and comes out to be an estimated $32 USD. I'm considering using the bare chips for sensors (not modules) and standardize resistors, capactiors, and other components where applicable to reduce costs further. 
+
 ## Current firmware feature set
 
 - Brings up the ESP32-S3 + W5500 Ethernet path over SPI
