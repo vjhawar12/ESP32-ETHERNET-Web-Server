@@ -29,13 +29,34 @@ This firmware is part of an ongoing system for a **3000+ unit seniors village**,
 - OTA support for field updates
 - event-driven task structure suitable for unattended deployment
 
-The project is still in progress, but it is already structured around real deployment constraints rather than a classroom-only prototype.
+The project is still in progress as it is part of my contract work @ Taylor Systems. It is intended to be structured around real deployment constraints rather than a classroom-only prototype.
 
 ## Hardware
 
-I created a custom PCB for this project. 
+I'm working on a custom PCB hardware design for this project so the firmware is tied to a real deployable embedded platform rather than only an off-the-shelf development board. The hardware screenshots in this folder document the schematic-level design work behind the node, including the power-entry and regulation circuitry needed to support a wired, always-on sensor deployment.
 
-![Power Module Schematic](/hardware/power_module_schm.png)
+The custom PCB uses the ESP32-WROOM32-E module with a integrated EMAC chip + external LAN8720A PHY chip communicating over RMI for high-speed ethernet and to free up the SPI bus for other peripherals. The current firmware still uses the external SPI controller with the W5500. 
+
+<p align="center">
+  <img src="hardware/power_module_schm.png" alt="Power module schematic" width="850">
+</p>
+
+<p align="center"><em>Power module schematic showing the board-level power-entry and regulation stage used to derive the node supply rails from the external input.</em></p>
+
+
+<p align="center">
+  <img src="hardware/ethernet_module_schm.png" alt="Ethernet module schematic" width="850">
+</p>
+
+<p align="center"><em>Ethernet module schematic showing the LAN8720 external PHY chip and the external 50 MHz oscillator. </em></p>
+
+
+<p align="center">
+  <img src="hardware/esp32_module_schm.png" alt="ESP32 module schematic" width="850">
+</p>
+
+<p align="center"><em>Main MCU module schematic showing the ESP32-WROOM32-E MCU, the USB-C Receptacle, USB-to-UART converter, and CMOS circuitry to control boot, reset, and oscillator enable modes. </em></p>
+
 
 ## Current feature set
 
@@ -56,16 +77,43 @@ I created a custom PCB for this project.
 
 ```text
 .
+├── .devcontainer/             # containerized development environment configuration
+├── .github/
+│   └── workflows/             # GitHub Actions / release automation
 ├── components/
-│   └── w5500/                 # custom/packaged W5500 support
-├── main/
+│   └── w5500/                 # local W5500 Ethernet component
+│       ├── include/           # W5500 component headers
+│       └── src/               # W5500 MAC/PHY implementation
+├── hardware/                  # PCB schematic screenshots and hardware documentation images
+│   ├── power_module_schm.png
+│   ├── ethernet_module_schm.png
+│   └── esp32_module_schm.png
+├── main/                      # ESP-IDF application component
+│   ├── include/               # application module headers
+│   ├── CMakeLists.txt         # app component build configuration
+│   ├── idf_component.yml      # ESP-IDF component dependency manifest
+│   ├── cert.pem               # embedded certificate for HTTPS OTA
 │   ├── main.c                 # app_main entry point
-│   ├── s3.c                   # firmware implementation
-│   ├── s3.h                   # public interface
-│   └── cert.pem               # server certificate for HTTPS OTA
-├── partitions.csv             # OTA-capable partition layout
-├── sdkconfig                  # ESP-IDF configuration
-└── .github/workflows/         # CI / release automation
+│   ├── s3.c                   # top-level application orchestration
+│   ├── network.c              # Ethernet bring-up and IP configuration
+│   ├── comms.c                # TCP/UDP communication paths
+│   ├── ota.c                  # OTA update flow
+│   ├── http.c                 # HTTPS fetch helpers
+│   ├── manifest.c             # OTA manifest parsing/version handling
+│   ├── nvs.c                  # persistent node configuration storage
+│   ├── peripherals.c          # GPIO, I2C, ADC, timer, and interrupt setup
+│   ├── periodic.c             # timer-driven periodic events
+│   ├── rtos_objects.c         # FreeRTOS event groups and synchronization objects
+│   ├── sensor_context.c       # shared telemetry/sensor state
+│   └── sensors.c              # sensor reads and measurement conversion
+├── CMakeLists.txt             # top-level ESP-IDF project build file
+├── partitions.csv             # OTA-capable flash partition table
+├── sdkconfig                  # active ESP-IDF project configuration
+├── sdkconfig.esp32dev         # alternate ESP32 dev-board configuration
+├── dependencies.lock          # ESP-IDF dependency lockfile
+├── .clangd                    # clangd language-server configuration
+├── .gitignore
+└── README.md
 ```
 
 ## Firmware architecture
