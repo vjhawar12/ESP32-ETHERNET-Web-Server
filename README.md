@@ -31,6 +31,16 @@ This firmware is part of an ongoing system for a **3000+ unit seniors village**,
 
 The project is still in progress as part of my contract work at Taylor Systems. It is structured around real deployment constraints rather than a classroom-only prototype.
 
+## Prototype Hardware
+
+![Initial REMS Ethernet prototype](docs/images/rems-prototype.jpg)
+
+Initial REMS Ethernet sensor-node prototype connected through a local Ethernet switch for firmware validation, networking tests, and sensor/relay integration.
+
+![Prototype testbench](docs/images/rems-testbench.jpg)
+
+Prototype testbench showing the primary REMS board, Ethernet networking, relay interfaces, power distribution, and connected sensor/control modules.
+
 ## Hardware
 
 The current firmware runs on ESP32-S3 development hardware with a W5500 SPI Ethernet controller. In parallel, I am designing a custom PCB so the system can move toward a more integrated deployable platform.
