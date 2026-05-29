@@ -33,11 +33,11 @@ The project is still in progress as part of my contract work at Taylor Systems. 
 
 ## Prototype Hardware
 
-![Initial REMS Ethernet prototype](docs/images/rems-prototype.jpg)
+![Initial REMS Ethernet prototype](docs/images/rems-primary-node.jpg)
 
 Initial REMS Ethernet sensor-node prototype connected through a local Ethernet switch for firmware validation, networking tests, and sensor/relay integration.
 
-![Prototype testbench](docs/images/rems-testbench.jpg)
+![Prototype testbench](docs/images/rems-system-testbench.jpg)
 
 Prototype testbench showing the primary REMS board, Ethernet networking, relay interfaces, power distribution, and connected sensor/control modules.
 
