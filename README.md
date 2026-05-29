@@ -328,7 +328,7 @@ This project required working across several embedded problem areas:
 
 ## Future hardening ideas
 
-If this were pushed further toward production, the next steps would be:
+As this moves closer to production, the next hardening steps include:
 
 - watchdog and task health monitoring
 - reconnect/retry logic for repeated socket failures
