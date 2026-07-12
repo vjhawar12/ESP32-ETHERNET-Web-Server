@@ -79,7 +79,7 @@ The Rev 1 custom PCB is currently documented through schematic screenshots and a
 <p align="center"><em>Main MCU module schematic showing the ESP32-WROOM-32E, USB-C receptacle, USB-to-UART converter, and boot/reset support circuitry.</em></p>
 
 <p align="center">
-  <img src="hardware/PCB_rev1_layout3.png" alt="PCB Layout" width="850">
+  <img src="docs/images/PCB_rev1_layout3.png" alt="PCB Layout" width="850">
 </p>
 
 <p align="center"><em>PCB Layout</em></p>
