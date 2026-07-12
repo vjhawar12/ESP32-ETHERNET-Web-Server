@@ -79,16 +79,16 @@ The Rev 1 custom PCB is currently documented through schematic screenshots and a
 <p align="center"><em>Main MCU module schematic showing the ESP32-WROOM-32E, USB-C receptacle, USB-to-UART converter, and boot/reset support circuitry.</em></p>
 
 <p align="center">
-  <img src="hardware/sensors_module.png" alt="Sensors module schematic" width="850">
+  <img src="hardware/PCB_rev1_layout3.png" alt="PCB Layout" width="850">
 </p>
 
-<p align="center"><em>Sensors module schematic showing the I2C GPIO expander, MQ135 air-quality interface, AHT20 temperature/humidity connector, and HC-SR505 motion sensor connector.</em></p>
+<p align="center"><em>PCB Layout</em></p>
 
 ## Hardware design status
 
-Rev 1 of the custom PCB is currently in **pre-layout schematic review**. The design migrates from the current W5500 SPI Ethernet development hardware toward an ESP32-WROOM-32E board using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY.
+Rev 1 of the custom PCB is currently in **PCB layout review**. The design migrates from the current W5500 SPI Ethernet development hardware toward an ESP32-WROOM-32E board using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY.
 
-The next hardware milestone is to route the PCB, run ERC/DRC and footprint checks, fabricate a single Rev 1 prototype, and document bring-up results before considering any larger production run.
+The next hardware milestone is to send Rev 1 prototype for manufacturing, and document bring-up results before considering any larger production run.
 
 ## BOM
 
