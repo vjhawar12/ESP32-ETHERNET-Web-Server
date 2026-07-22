@@ -1,8 +1,8 @@
 # ESP32 Ethernet Sensor Node
 
-ESP32-S3 firmware for an Ethernet-connected sensor node intended for long-lived remote deployment in a **3000+ unit seniors village**. The system is being built as part of an in-progress large-scale sensing and maintenance workflow where nodes need stable addressing, remote observability, sensor telemetry, and reliable firmware updates without requiring physical access.
+ESP32-S3 firmware for an Ethernet-connected sensor node intended for long-lived remote deployment in a **3,000+ unit seniors village**. The system is being built as part of an in-progress large-scale sensing and maintenance workflow where nodes need stable addressing, remote observability, sensor telemetry, and reliable firmware updates without requiring physical access.
 
-> **Hardware status note:** The current firmware targets an ESP32-S3 development module using a **W5500 SPI Ethernet controller**. The custom PCB shown below is a **Rev 1 hardware direction** that migrates the design toward an **ESP32-WROOM-32E module using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY**. Firmware support for the LAN8720A/RMII hardware is planned after schematic/layout bring-up.
+> **Hardware status note:** The current firmware targets an ESP32-S3 development module using a **W5500 SPI Ethernet controller**. The custom PCB screenshots below show two design iterations that migrate the hardware toward an **ESP32-WROOM-32E module using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY**. Firmware support for the LAN8720A/RMII hardware is planned after custom-board bring-up.
 
 This project is written in **C using ESP-IDF** and is aimed at real embedded deployment rather than a one-off demo. The focus is on firmware architecture, networking, remote maintainability, sensor integration, and the hardware/software boundary.
 
@@ -21,7 +21,7 @@ This repo demonstrates:
 
 ## Deployment context
 
-This firmware is part of an ongoing system for a **3000+ unit seniors village**, where many sensor nodes are expected to operate continuously and be manageable remotely. That environment shapes the design choices in this repo:
+This firmware is part of an ongoing system for a **3,000+ unit seniors village**, where many sensor nodes are expected to operate continuously and be manageable remotely. That environment shapes the design choices in this repo:
 
 - persistent per-node identity and static IP assignment
 - lightweight remote operator console
@@ -31,77 +31,74 @@ This firmware is part of an ongoing system for a **3000+ unit seniors village**,
 
 The project is still in progress as part of my contract work at Taylor Systems. It is structured around real deployment constraints rather than a classroom-only prototype.
 
-## Prototype Hardware
+## Prototype hardware
 
-![Initial REMS Ethernet prototype](docs/images/rems-primary-node.jpg)
+![ESP32-S3 Ethernet sensor-node prototype connected to a local switch](docs/images/rems-primary-node.jpg)
 
-Initial REMS Ethernet sensor-node prototype connected through a local Ethernet switch for firmware validation, networking tests, and sensor/relay integration.
+*Initial REMS Ethernet sensor-node prototype connected through a local switch for firmware validation, network testing, and sensor/relay integration.*
 
-![Prototype testbench](docs/images/rems-system-testbench.jpg)
+![REMS system testbench with Ethernet, relay, power, and sensor modules](docs/images/rems-system-testbench.jpg)
 
-Prototype testbench showing the primary REMS board, Ethernet networking, relay interfaces, power distribution, and connected sensor/control modules.
+*System-level testbench showing the primary REMS board, Ethernet networking, relay interfaces, power distribution, and connected sensor/control modules.*
 
 ## Hardware
 
-The current firmware runs on ESP32-S3 development hardware with a W5500 SPI Ethernet controller. In parallel, I am designing a custom PCB so the system can move toward a more integrated deployable platform.
+The current firmware runs on ESP32-S3 development hardware with a W5500 SPI Ethernet controller. In parallel, I am designing a custom PCB so the system can move toward a more integrated and deployable platform.
 
-The Rev 1 custom PCB design uses:
+The custom PCB design uses:
 
 - ESP32-WROOM-32E main controller module
 - ESP32 internal Ethernet MAC with external LAN8720A RMII PHY
 - Shielded RJ45 MagJack with integrated magnetics
 - External 50 MHz oscillator for the Ethernet PHY
-- 12V input protection and onboard 5V / 3.3V regulation
+- 12 V input protection and onboard 5 V / 3.3 V regulation
 - USB-C + CH340C USB-to-UART programming/debug interface
 - I2C GPIO expander for additional digital sensor I/O
 - MQ135 analog/digital air-quality interface
 - AHT20 temperature/humidity sensor connector
 - HC-SR505 motion sensor connector
 
-The Rev 1 custom PCB is currently documented through schematic screenshots and a pre-layout schematic overview. Editable KiCad source files, routed PCB files, and fabrication outputs are kept private while the design is under active development.
+The current custom PCB design is documented through subsystem schematic captures and PCB layout screenshots. Editable KiCad source files, routed PCB files, and fabrication outputs are kept private while the design is under active development.
 
 <p align="center">
-  <img src="hardware/power_module.png" alt="Power module schematic" width="850">
+  <img src="hardware/power_module.png" alt="12 V input protection and 5 V / 3.3 V power-regulation schematic" width="850">
 </p>
 
-<p align="center"><em>Power module schematic showing the board-level power-entry and regulation stage used to derive the node supply rails from the external input.</em></p>
+<p align="center"><em>Power subsystem schematic showing the protected 12 V input and the regulation stages used to generate the board's 5 V and 3.3 V rails.</em></p>
 
 <p align="center">
-  <img src="hardware/ethernet_module_schm.png" alt="Ethernet module schematic" width="850">
+  <img src="hardware/ethernet_module_schm.png" alt="LAN8720A RMII Ethernet PHY and RJ45 interface schematic" width="850">
 </p>
 
-<p align="center"><em>Ethernet module schematic showing the LAN8720A external PHY, RJ45 MagJack, and 50 MHz oscillator.</em></p>
+<p align="center"><em>Ethernet subsystem schematic showing the LAN8720A RMII PHY, shielded RJ45 MagJack, and external 50 MHz reference oscillator.</em></p>
 
 <p align="center">
-  <img src="hardware/esp32_module_schm.png" alt="ESP32 module schematic" width="850">
+  <img src="hardware/esp32_module_schm.png" alt="ESP32-WROOM-32E programming, debug, and boot circuitry schematic" width="850">
 </p>
 
-<p align="center"><em>Main MCU module schematic showing the ESP32-WROOM-32E, USB-C receptacle, USB-to-UART converter, and boot/reset support circuitry.</em></p>
+<p align="center"><em>Main-controller schematic showing the ESP32-WROOM-32E, USB-C interface, CH340C USB-to-UART converter, JTAG access, and boot/reset support circuitry.</em></p>
 
 <p align="center">
-  <img src="docs/images/PCB_rev1_layout3.png" alt="PCB Layout" width="850">
+  <img src="docs/images/PCB_rev1_layout3.png" alt="KiCad layout view of the first custom PCB design revision" width="850">
 </p>
 
-<p align="center"><em>PCB Rev 1</em></p>
-
-<p align="center"><em>Main MCU module schematic showing the ESP32-WROOM-32E, USB-C receptacle, USB-to-UART converter, and boot/reset support circ>
+<p align="center"><em>PCB Rev 1: initial board-level placement and routing for the power, ESP32, Ethernet, programming/debug, and sensor-interface sections.</em></p>
 
 <p align="center">
-  <img src="docs/images/pcb_rev2.png" alt="PCB Layout" width="850">
+  <img src="docs/images/pcb_rev2.png" alt="KiCad layout view of the second custom PCB design revision" width="850">
 </p>
 
-<p align="center"><em>PCB Rev 2</em></p>
-
+<p align="center"><em>PCB Rev 2: updated placement and routing iteration produced during design review before prototype fabrication.</em></p>
 
 ## Hardware design status
 
-Rev 1 of the custom PCB is currently in **PCB layout review**. The design migrates from the current W5500 SPI Ethernet development hardware toward an ESP32-WROOM-32E board using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY.
+The custom PCB is currently in **active layout review**. The screenshots above show the initial Rev 1 layout and the updated Rev 2 design iteration. Both migrate the system from the current W5500 SPI Ethernet development hardware toward an ESP32-WROOM-32E board using the ESP32 internal Ethernet MAC with an external LAN8720A RMII PHY.
 
-The next hardware milestone is to send Rev 1 prototype for manufacturing, and document bring-up results before considering any larger production run.
+The next hardware milestone is to complete routing and footprint review, finish ERC/DRC checks, manufacture a single prototype, and document staged board bring-up before considering a larger production run.
 
 ## BOM
 
-The preliminary bill-of-materials can be found under /hardware/bom and comes out to be an estimated $32 USD. I'm considering using the bare chips for sensors (not modules) and standardize resistors, capactiors, and other components where applicable to reduce costs further. 
+The preliminary bill of materials is stored under `hardware/bom` and is currently estimated at approximately **$32 USD**. Further cost reductions may come from replacing some sensor modules with bare ICs and standardizing resistor, capacitor, and other common component values where practical.
 
 ## Current firmware feature set
 
@@ -168,10 +165,10 @@ At startup, the firmware performs the following sequence:
 8. Fetch and parse the OTA manifest in non-flashing/status mode
 9. Create synchronization primitives and timer-driven events
 10. Spawn runtime tasks:
-   - sensor measurement task
-   - heartbeat task
-   - UDP streaming task
-   - TCP console task
+    - sensor measurement task
+    - heartbeat task
+    - UDP streaming task
+    - TCP console task
 11. Block in the main loop waiting for OTA trigger events
 
 The firmware uses a small event-driven architecture built around:
@@ -275,14 +272,14 @@ This project uses:
 
 This code currently targets an ESP32-S3-ETH development board using the W5500 and assumes the following Ethernet pin mapping:
 
-| Signal     | GPIO |
-|------------|------|
-| Reset      | 9    |
-| Interrupt  | 10   |
-| MOSI       | 11   |
-| MISO       | 12   |
-| SCLK       | 13   |
-| CS         | 14   |
+| Signal    | GPIO |
+|-----------|------|
+| Reset     | 9    |
+| Interrupt | 10   |
+| MOSI      | 11   |
+| MISO      | 12   |
+| SCLK      | 13   |
+| CS        | 14   |
 
 The implementation currently references the Waveshare ESP32-S3-ETH schematic conventions in code comments.
 
@@ -312,7 +309,7 @@ This repo reflects an in-progress real deployment effort, so some hardening work
 
 Planned / ongoing work includes:
 
-- PCB routing, footprint checks, ERC/DRC cleanup, and single-board Rev 1 bring-up
+- final custom-PCB routing, footprint review, ERC/DRC cleanup, fabrication, and single-board bring-up
 - LAN8720A/RMII firmware migration after custom PCB bring-up
 - socket recreation / recovery logic after repeated UDP send failures
 - deeper sensor-driver modularization
