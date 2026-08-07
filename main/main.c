@@ -1,4 +1,6 @@
 #include "s3.h"
+#include "esp_mac.h"
+#include "esp_log.h" 
 
 void app_main() {   
 	// change s3_ota_update to a task scheduled by FreeRTOS later

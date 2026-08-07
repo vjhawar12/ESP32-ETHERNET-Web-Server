@@ -1,4 +1,5 @@
 #include "esp_netif.h"
+#include "esp_mac.h"
 #include "esp_eth_phy_w5500.h"
 #include "esp_eth_mac_w5500.h"
 #include "app_config.h"
@@ -89,6 +90,9 @@ esp_err_t mac_phy_init(void) {
 esp_err_t driver_init(void) {
 	esp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);
 	ESP_RETURN_ON_ERROR(esp_eth_driver_install(&config, &eth_handle), S3_TAG, "ETH_DEFAULT_CONFIG failed");
+	uint8_t mac_addr[6];
+	esp_err_t code = esp_read_mac(mac_addr, ESP_MAC_ETH);
+    esp_eth_ioctl(eth_handle, ETH_CMD_S_MAC_ADDR, mac_addr);
 	return ESP_OK;
 }
 
@@ -108,20 +112,39 @@ void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 
 void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
+	uint8_t mac_addr[6];
+	esp_err_t code = esp_read_mac(mac_addr, ESP_MAC_ETH);
     switch (event_id) {
         case ETHERNET_EVENT_START:
-            ESP_LOGI(S3_TAG, "Ethernet Started");
+			 ESP_LOGI(TAG, "Ethernet Driver Started");
             break;
         case ETHERNET_EVENT_CONNECTED:
-            ESP_LOGI(S3_TAG, "Ethernet Link Up");
-            break;
+             uint8_t mac_addr[6] = {0};
+
+            ESP_ERROR_CHECK(
+                esp_eth_ioctl(
+                    eth_handle,
+                    ETH_CMD_G_MAC_ADDR,
+                    mac_addr
+                )
+            );
+
+            ESP_LOGI(TAG, "Ethernet Link Up");
+            ESP_LOGI(
+                TAG,
+                "Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
+                mac_addr[0], mac_addr[1], mac_addr[2],
+                mac_addr[3], mac_addr[4], mac_addr[5]
+            );
+			break;
         case ETHERNET_EVENT_DISCONNECTED:
             ESP_LOGI(S3_TAG, "Ethernet Link Down");
             break;
         case ETHERNET_EVENT_STOP:
-            ESP_LOGI(S3_TAG, "Ethernet Stopped");
+            ESP_LOGI(S3_TAG, "Ethernet Driver Stopped");
             break;
         default:
+			ESP_LOGI(TAG, "Unknown Ethernet event: %" PRId32, event_id);
             break;
     }
 }
