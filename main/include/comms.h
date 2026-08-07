@@ -19,7 +19,7 @@ void communicate(int sock, char* server_version_str);
 
 // Start the TCP console server. Each accepted connection is handled in-place
 // and closed before the server returns to listen for the next client.
-void tcp_server_create(void* pv_params); 
+void tcp_server(void* pv_params); 
 
 
 // Wait for either the periodic stream event or a manual stream-enable flag,

@@ -30,6 +30,7 @@ void s3_main(void) {
 	main_group = xEventGroupCreate();
     collect_group = xEventGroupCreate();
     log_group = xEventGroupCreate();
+	xEventGroupSetBits(log_group, STREAM_BIT | STREAM_BIT_MANUAL);
 	sensor_data = (stream_data*)calloc(1, sizeof(stream_data));
 	payload = (stream_payload*)calloc(1, sizeof(stream_payload)); 
 	payload->_stream_data = sensor_data;
@@ -44,18 +45,18 @@ void s3_main(void) {
 		portMAX_DELAY
 	); 
 	//i2c_init();
-	adc_init();
+	//adc_init();
 	if (http_get_request() == ESP_OK) {
 		parse_manifest(false);
 	}
 	mutex = xSemaphoreCreateMutex();
 	timer_setup();
-	// xTaskCreate(measure_sensor_values, "Measure sensor values", 4096, NULL, 3, NULL);
+	udp_socket_create((void*)AF_INET);
+	xTaskCreate(measure_sensor_values, "Measure sensor values", 4096, NULL, 3, NULL);
 	xTaskCreate(heartbeat, "Heartbeat Monitor Task", 4096, NULL, 3, NULL); 
-	xTaskCreate(udp_socket_create, "UDP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
 	xTaskCreate(udp_stream, "UDP Stream", 4096, payload, 2, NULL);
-	xTaskCreate(tcp_server_create, "TCP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
-	//xTaskCreate(motion_detected_handler, "Motion Detected Handler", 4096, NULL, 5, &motion_detected_handler_task); 	
+	xTaskCreate(tcp_server, "TCP Server Task", 4096, (void *)AF_INET, 5, NULL); 	
+	xTaskCreate(motion_detected_handler, "Motion Detected Handler", 4096, NULL, 5, &motion_detected_handler_task); 	
 	gpio_init();
 	while (1) {
 		xEventGroupWaitBits(

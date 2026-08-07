@@ -31,8 +31,8 @@ void strfilter(char* buffer, int length) {
 
 // Create and bind the UDP socket used for telemetry, then spawn the task that
 // transmits payloads on stream events.
-void udp_socket_create(void* pv_params) {
-	int addr_family = (int)pv_params; // ipv4
+void udp_socket_create(void* addr) {
+	int addr_family = (int)addr; // ipv4
 	struct sockaddr_in dest_addr_ip4 = {0};
 	struct sockaddr_in dest_addr = {0};
 	int ip_protocol = IPPROTO_IP;
@@ -101,7 +101,7 @@ void handle_exit(char* tx_buffer, int sock) {
 }
 
 void handle_help(char* tx_buffer, int sock) {
-	tx("Options:\nreboot\nstream on\nstream off\nota flash\n ota status\n", sock);
+	tx("Options:\nreboot\nstream on\nstream off\nota flash\nota status\n", sock);
 }
 
 void handle_reboot(char* tx_buffer, int sock) {
@@ -176,7 +176,7 @@ void communicate(int sock, char* server_version_str) {
 
 // Start the TCP console server. Each accepted connection is handled in-place
 // and closed before the server returns to listen for the next client.
-void tcp_server_create(void* pv_params) {
+void tcp_server(void* pv_params) {
 	const int buffer_length = 128;
 	char addr_str[buffer_length]; // client ip address 
 	int ipv4 = (int)pv_params; // using ipv4 strictly
@@ -213,8 +213,8 @@ void tcp_server_create(void* pv_params) {
         ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
 		return;
     }
+	ESP_LOGI(TAG, "TCP Socket bound and listening on port %d", PORT_TCP);
 	while (1) {
-		ESP_LOGI(TAG, "TCP Socket bound and listening on port %d", PORT_TCP);
 		struct sockaddr_storage source_addr; // Large enough for both IPv4 or IPv6
         socklen_t addr_len = sizeof(source_addr);
 		// accept incoming connection on a new socket used for communication

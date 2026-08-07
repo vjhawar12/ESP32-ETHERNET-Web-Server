@@ -39,7 +39,7 @@
 #define IP_ADDR_3 "192.168.3.203"
 #define IP_ADDR_4 "192.168.3.204"
 // this is not a real node, its a test one
-#define DEFAULT_IP_ADDR IP_ADDR_4
+#define DEFAULT_IP_ADDR IP_ADDR_3
 #define MANIFEST "https://192.168.3.125:4443/s3_manifest.json"
 #define SUBNET "255.255.255.0"
 #define GATEWAY "192.168.3.1"
